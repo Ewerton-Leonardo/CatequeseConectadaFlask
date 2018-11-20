@@ -1,5 +1,11 @@
 from app import db
+from app import lm
 from datetime import date, datetime
+
+
+@lm.user_loader
+def load_user(user_id):
+    return Catequista.query.filter(Catequista.id==user_id).first()
 
 
 class Comunidade(db.Model):
@@ -38,7 +44,7 @@ class Catequista(db.Model):
     __tablename__ = 'catequista'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    username = db.Column(db.String(20), primary_key=True)
+    username = db.Column(db.String(20), unique=True)
     senha = db.Column(db.String(30), nullable=False)
     nome = db.Column(db.String(50), nullable=False)
     id_comunidade = db.Column(db.Integer, db.ForeignKey('comunidade.id'), nullable=False)
@@ -65,7 +71,7 @@ class Catequista(db.Model):
         self.coordenacao = coordernacao
 
     @property
-    def is_autheticated(self):
+    def is_authenticated(self):
         return True
 
     @property
@@ -73,7 +79,7 @@ class Catequista(db.Model):
         return True
 
     @property
-    def is_anonymus(self):
+    def is_anonymous(self):
         return False
 
     def get_id(self):

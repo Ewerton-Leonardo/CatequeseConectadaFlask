@@ -26,46 +26,47 @@
             </li>
         </ul>
     </nav>
-
 </header>
 
-    {% with messages = get_flashed_messages(category_filter=['invalidos']) %}
-      {% if messages %}
-      <div class="alert alert-warning">
-        <ul class="flashes list-unstyled">
-        {% for message in messages %}
-          <li><button type="button" class="close" data-dismiss="alert">&times;</button>{{ message }}</li>
-        {% endfor %}
-        </ul>
-        </div>
-      {% endif %}
-    {% endwith %}
-    {% with messages = get_flashed_messages(category_filter=['erros']) %}
-      {% if messages %}
-      <div class="alert alert-danger">
-        <ul class="flashes list-unstyled">
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-        </div>
-      {% endif %}
-    {% endwith %}
-    {% with messages = get_flashed_messages(category_filter=['sucesso']) %}
-      {% if messages %}
-      <div class="alert alert-sucess">
-        <ul class="flashes list-unstyled">
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-        </div>
-      {% endif %}
-    {% endwith %}
+{% with messages = get_flashed_messages(category_filter=['invalido']) %}
+  {% if messages %}
+  <div class="alert alert-warning">
+    <ul class="flashes list-unstyled">
+    {% for message in messages %}
+      <li><button type="button" class="close" data-dismiss="alert">&times;</button>{{ message }}</li>
+    {% endfor %}
+    </ul>
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% with messages = get_flashed_messages(category_filter=['erro']) %}
+  {% if messages %}
+  <div class="alert alert-danger">
+    <ul class="flashes list-unstyled">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% with messages = get_flashed_messages(category_filter=['sucesso']) %}
+  {% if messages %}
+  <div class="alert alert-success">
+    <ul class="flashes list-unstyled">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+    </div>
+  {% endif %}
+{% endwith %}
 
 {% block content %}
 {% endblock %}
-<!--<script src="http://code.jquery.com/jquery-1.9.1.js"></script>-->
+<script src="{{ url_for('static', filename='js/jquery-1.9.1.js') }}"></script>
 <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script>
 </body>
 </html>

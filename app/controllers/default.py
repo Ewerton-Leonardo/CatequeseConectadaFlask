@@ -16,15 +16,16 @@ def index():
 def login():
     form_login = LoginForm(request.form)
     flash(form_login.errors, 'invalido')
-    if form_login.validate():
+    if form_login.validate_on_submit():
         cqt = Catequista.query.filter_by(username=form_login.username.data).first()
-        if cqt and cqt.senha == form_login.data.senha:
+        if cqt and cqt.senha == form_login.senha.data:
             login_user(cqt)
             flash("Logado", 'sucesso')
-            logout_user()
-            return redirect(url_for(index))
+            return redirect(url_for('pagina_inicial'))
         else:
             flash("Usuário não cadastrado ou senha inválida", 'erro')
+    else:
+        flash(form_login.errors, 'invalido')
     return render_template('login.html', form_login=form_login)
 
 
@@ -61,7 +62,19 @@ def cadastro_comunidade():
         flash('Comunidade cadastrada', 'sucesso')
     else:
         flash('Comunidade já cadastrada', 'erro')
-    render_template('cadastro-comunidade.html', form=form)
+    return render_template('cadastro-comunidade.html', form=form)
+
+
+@app.route('/pagina-inicial')
+@login_required
+def pagina_inicial():
+    return render_template('pagina-inicial.html', user=current_user)
+
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', user=current_user)
 
 @app.route('/add-roteiro', methods=['get', 'post'])
 @login_required
@@ -88,4 +101,4 @@ def teste():
 def logout():
     logout_user()
     flash('Você foi deslogado')
-    return redirect(url_for('main.index'))
+    return redirect(url_for('index'))

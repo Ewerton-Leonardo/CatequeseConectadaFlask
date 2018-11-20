@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container jumbotron">
     <form action="" method="post" class="form-text">
-        <div class="col-md-6 offset-md-4">
+        {{ form_login.csrf_token }}
             <h2 class="title-form">Login</h2>
         <div class="form-group">
                 {{ form_login.username.label }}<br>
@@ -15,7 +15,6 @@
                 {{ form_login.senha(class="form-control") }}
         </div>
         <button class="btn btn-primary" type="submit">Entrar</button>
-        </div>
     </form>
 </div>
 {% endblock %}

@@ -21,7 +21,7 @@ def login():
         if cqt and cqt.senha == form_login.senha.data:
             login_user(cqt)
             flash("Logado", 'sucesso')
-            return redirect(url_for('pagina_inicial'))
+            return redirect(url_for('pagina-inicial'))
         else:
             flash("Usuário não cadastrado ou senha inválida", 'erro')
     else:

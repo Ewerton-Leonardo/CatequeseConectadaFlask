@@ -2,16 +2,20 @@
 {% block title %}{{ turma.nome }}{% endblock %}
 {% block content %}
     <h2>Turma {{ turma.nome }}</h2>
-    {% if catequisandos %}
-        {% for catequisando in catequisandos %}
-            <div class="box-pessoa" style="position: absolute;left: 0px;top: 0px;">
-                <h4>{{ catequisando.nome }}</h4>
+    <a href="{{ url_for('adicionar_ficha_catequizando', id_turma=turma.id) }}" class="btn btn-success">Adicionar ficha de catequizando</a>
+    {% from 'macro.html' import get_nome, get_idade %}
+    {% if catequizandos %}
+        {% for catequizando in catequizandos %}
+            <div class="initialism">
+                <h4>{{ get_nome(catequizando.nome) }}</h4>
                 <dl>
-                    <dt>Data de nascimento:</dt>
-                    <dd>{{ catequisando.data_nasc }}</dd>
+                    <dt>Idade: {{ get_idade(catequizando.data_nasc) }}</dt>
 
-                    <dt class="hidden">Email:</dt>
-                    <dd>alinedcts@gmail.com</dd>
+                    <div>
+                        <a class="btn btn-light btn-sm" href="{{ url_for('visualizar_ficha_catequizando', id_turma=turma.id, id_ficha_catequizando=catequizando.id) }}"><img src="{{ url_for('static', filename='png/eye-3x.png') }}" alt="Visualizar" title="Visualizar"></a>
+                        <a class="btn btn-light btn-sm" href="{{ url_for('editar_ficha_catequizando', id_turma=turma.id, id_ficha_catequizando=catequizando.id) }}"><img src="{{ url_for('static', filename='png/pencil-3x.png') }}" alt="Editar" title="Editar"></a>
+                        <a class=" btn btn-danger btn-sm" href="{{ url_for('apagar_ficha_catequizando', id_turma=turma.id, id_ficha_catequizando=catequizando.id) }}"><img src="{{ url_for('static', filename='png/trash-3x.png') }}" alt="Apagar" title="Apagar"></a>
+                    </div>
 
                 </dl>
             </div>

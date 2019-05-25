@@ -1,25 +1,66 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<div class="container jumbotron">
-    <form action="" method="post" class="form-text">
-        {{ form.csrf_token }}
+    {% from 'macro.html' import render_field, render_title_form, render_field_read %}
+    <div class="container jumbotron col-lg-6 col-md-8 col-sm-12">
+        <h2 class="title-form">{{ form.title_form }}</h2>
+        <form action="" method="post" class="form-text">
+            {{ form.hidden_tag() }}
             <div class="form-group">
-                {{ form.nome.label }}<br>
-                {{ form.nome(_class="form-control", placeholder="Comunidade") }}
+                {{ form.diocese.label }}
+                <div class="form-row">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-12">
+                        {{ form_select.diocese_select(class="form-control") }}
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-12">
+                        {{ form.diocese(class="form-control") }}
+                    </div>
+                </div>
             </div>
             <div class="form-group">
-                {{ form.paroquia.label }}<br>
-                {{ form.paroquia(_class="form-control", placeholder="Paróquia") }}
+                {{ form.paroquia.label }}
+                <div class="form-row">
+                    <div class="form-group col-lg-6 col-md-6 col-sm-12">
+                        {{ form_select.paroquia_select(class="form-control") }}
+                    </div>
+                    <div class="form-group col-lg-6 col-md-6 col-sm-12">
+                        {{ form.paroquia(class="form-control") }}
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                {{ form.diocese.label }}<br>
-                {{ form.diocese(_class="form-control", placeholder="Diocese") }}
-            </div>
+                <div class="form-group">
+                    {{ render_field(form.nome) }}
+                </div>
+                <div class="form-group text-center">
+                    {{ render_field(form.submit) }}
+                </div>
+        </form>
+    </div>
 
-            <input class="btn btn-primary" type="submit" title="Cadastrar" value="Cadastrar">
-    </form>
-</div>
+    <script>
+        var diocese_select = document.getElementById("diocese_select");
+        var paroquia_select = document.getElementById("paroquia_select");
+        var diocese_input = document.getElementById("diocese");
+        var paroquia_input = document.getElementById("paroquia");
 
+        diocese_select.onchange = function()  {
+            diocese_input.value = diocese_select.value;
+            diocese = diocese_select.value;
+
+            fetch('/paroquias/'+diocese).then(function(response) {
+                response.json().then(function(data) {
+                    paroquia_select.innerHTML = '<option value="">Selecione a paróquia</option>';
+                    var optionHTML = '';
+                    for (var paroquia of data.paroquias) {
+                            optionHTML += '<option value="' + paroquia + '">' + paroquia + '</option>';
+                        }
+                    paroquia_select.innerHTML += optionHTML;
+                })
+
+            });
+        };
+        paroquia_select.onchange = function() {
+            paroquia_input.value = paroquia_select.value
+        }
+    </script>
 {% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Frequência - Turma {{ turma.id }}{% endblock %}
+{% block content %}
+<h2>Turma {{ turma.nome }}</h2>
+{% if catequizandos %}
+    {% from 'macro.html' import render_field %}
+    {% for catequizando in catequizandos %}
+        <div class="row">
+            <form action="" method="post">
+                {{ form.hidden_tag() }}
+                {{ catequizando.nome }} - {{ render_field(form.presenca) }}
+                {{ render_field(form.enviar) }}
+            </form>
+        </div>
+    {% endfor %}
+{% endif %}

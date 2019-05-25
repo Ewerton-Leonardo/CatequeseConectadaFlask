@@ -1,20 +1,38 @@
 from app import app, db
 from flask import render_template, flash, redirect, url_for, request, abort
 from flask_login import logout_user, login_required, current_user
+import functools
 
 from app.models.forms import FichaCatequistaForm, RoteiroForm, TurmaForm, FichaCatequizandoForm, EncontroForm, \
-    EditarRoteiroForm, EditarFichaCatequistaForm, EditarFichaCatequizandoForm, EditarTurmaForm, EditarEncontroForm, FrequenciaForm
-from app.models.tables import Catequista, Roteiro, FichaCatequista, Turma, FichaCatequizando, Encontro, Frequencia
+    EditarRoteiroForm, EditarFichaCatequistaForm, EditarFichaCatequizandoForm, EditarTurmaForm, EditarEncontroForm, CatequistaTipoCatequeseForm
+from app.models.tables import Catequista, Roteiro, FichaCatequista, Turma, FichaCatequizando, Encontro, CatequistaTipoCatequese
 
-from app.services.roteiro_services import add_roteiro, update_roteiro, delete_roteiro, load_update_form_roteiro
+from app.services.roteiro_services import RoteiroDAO
+from app.services.user_services import UserDAO
+from app.services.tipo_catequese_services import TipoCatequeseDAO
+from app.services.catequista_services import CatequistaDAO
+from app.services.turma_services import TurmaDAO
+from app.services.catequizando_services import CatequizandoDAO
+from app.services.encontro_services import EncontroDAO
+
+
+def autenticacao_catequista(f):
+    @functools.wraps(f)
+    def funcao_decorada(*args, **kwargs):
+        user = UserDAO.query_user_id(current_user.id_user)
+        if user.tipo != 'Catequista':
+            abort(401)
+        return f(*args, **kwargs)
+    return funcao_decorada
 
 
 @app.route('/adicionar_ficha_catequista/add', methods=['get', 'post'])
 @login_required
+@autenticacao_catequista
 def adicionar_ficha_catequista():
     form_ficha = FichaCatequistaForm(request.form)
     tem_ficha = False
-    query_ficha = FichaCatequista.query.filter_by(id_catequista=current_user.id).first()
+    query_ficha = CatequistaDAO.query_ficha_catequista(current_user.id)
 
     if query_ficha:
         tem_ficha = True
@@ -55,8 +73,35 @@ def adicionar_ficha_catequista():
 
 @app.route('/perfil')
 @login_required
+@autenticacao_catequista
 def perfil():
     return render_template('templates_catequista/perfil.html', user=current_user)
+
+
+@app.route('/tipo_de_catequese/catequista', methods=['get', 'post'])
+@login_required
+@autenticacao_catequista
+def catequista_tipo_catequese():
+    form = CatequistaTipoCatequeseForm(request.form)
+    tipos_catequeses = TipoCatequeseDAO.query_order_tipo_catequese()
+    catequista_tipos_catequeses = TipoCatequeseDAO.query_tipos_catequeses_catequista(current_user.id)
+    if catequista_tipos_catequeses:
+        for tipo_catequese in catequista_tipos_catequeses:
+            for tipo in tipos_catequeses:
+                if tipo_catequese.id_tipo_catequese == tipo.id:
+                    tipos_catequeses.remove(tipo)
+    form.tipo_catequese.choices = [(row.id, row.nome) for row in tipos_catequeses]
+
+    if form.validate_on_submit() and request.method == 'POST':
+        var_catequista_tipo_catequese = CatequistaTipoCatequese(id_catequista=current_user.id,
+                                                                id_tipo_catequese=form.tipo_catequese.data)
+        db.session.add(var_catequista_tipo_catequese)
+        db.session.commit()
+        return redirect(url_for('catequista_tipo_catequese'))
+    elif form.errors != {} and form.is_submitted():
+        for erro in form.errors:
+            flash(form.errors[erro][0], 'erro')
+    return render_template('templates_catequista/relacionar_tipo_catequese.html', form=form)
 
 
 '''
@@ -69,25 +114,26 @@ def perfil():
 @app.route('/roteiro/')
 @app.route('/roteiro/all')
 @login_required
+@autenticacao_catequista
 def roteiros():
-    dict_roteiros = Roteiro.query.filter_by(id_comunidade=current_user.id_comunidade).order_by('tema').all()
+    dict_roteiros = RoteiroDAO.query_roteiros_comunidade(current_user.id_comunidade, ).order_by('tema').all()
     return render_template('templates_catequista/list_roteiros.html',
                            dict_roteiros=dict_roteiros)
 
 
 @app.route('/roteiro/publico')
-@login_required
 def roteiros_publicos():
-    dict_roteiros = Roteiro.query.order_by('tema').all()
+    dict_roteiros = RoteiroDAO.query_roteiros_publicos()
     return render_template('templates_catequista/list_roteiros_publicos.html',
                            dict_roteiros=dict_roteiros)
 
 
 @app.route('/roteiro/add', methods=['get', 'post'])
 @login_required
+@autenticacao_catequista
 def adicionar_roteiro():
     form = RoteiroForm(request.form)
-    form.tipo.choices = [(current_user.tipo_catequese_1, current_user.tipo_catequese_1), (current_user.tipo_catequese_2, current_user.tipo_catequese_2)]
+    form.tipo.choices = [(row.id, row.nome) for row in TipoCatequeseDAO.query_tipos_catequeses_catequista(current_user.id)]
 
     if form.validate_on_submit() and request.method == 'POST':
         roteiro = Roteiro(
@@ -109,8 +155,7 @@ def adicionar_roteiro():
             observacoes=form.observacoes.data,
             publico=form.publico.data
         )
-        db.session.add(roteiro)
-        db.session.commit()
+        RoteiroDAO.add_roteiro(roteiro)
         return redirect(url_for('roteiros'))
 
     elif form.errors != {} and form.is_submitted():
@@ -123,12 +168,10 @@ def adicionar_roteiro():
 @app.route('/roteiro/<int:id_roteiro>/view')
 @app.route('/roteiro/<int:id_roteiro>/')
 @login_required
+@autenticacao_catequista
 def visualizar_roteiro(id_roteiro):
-    roteiro = Roteiro.query.filter_by(id=id_roteiro).first()
-    autor = Catequista.query.filter_by(id=roteiro.id_catequista).first()
-
-    if not roteiro:
-        abort(404)
+    roteiro = RoteiroDAO.query_roteiro(id_roteiro)
+    autor = CatequistaDAO.query_catequista_id(roteiro.id_catequista)
 
     return render_template('templates_catequista/view_roteiro.html',
                            roteiro=roteiro,
@@ -137,14 +180,15 @@ def visualizar_roteiro(id_roteiro):
 
 @app.route('/roteiro/<int:id_roteiro>/edit', methods=['get', 'post'])
 @login_required
+@autenticacao_catequista
 def editar_roteiro(id_roteiro):
-    roteiro = Roteiro.query.filter_by(id=id_roteiro, id_catequista=current_user.id).first()
-    form_roteiro = EditarRoteiroForm(request.form)
+    roteiro = RoteiroDAO.query_roteiro_catequista(id_roteiro, current_user.id, True)
+    form_roteiro = EditarRoteiroForm(formdata=request.form, obj=roteiro)
     form_roteiro.tipo.choices = [(current_user.tipo_catequese_1, current_user.tipo_catequese_1), (current_user.tipo_catequese_2, current_user.tipo_catequese_2)]
 
     if form_roteiro.validate_on_submit() and request.method == 'POST':
         flash(form_roteiro.tema.data, 'erro')
-        update_roteiro(roteiro, form_roteiro)
+        RoteiroDAO.update(roteiro, form_roteiro)
         return redirect(url_for('visualizar_roteiro', id_roteiro=id_roteiro))
 
     elif form_roteiro.errors != {} and form_roteiro.is_submitted():
@@ -155,8 +199,6 @@ def editar_roteiro(id_roteiro):
         flash('Roteiro não encontrado', 'erro')
         abort(404)
 
-    load_update_form_roteiro(form_roteiro, roteiro)
-
     return render_template('templates_catequista/editar_roteiro.html',
                            roteiro=roteiro,
                            form_roteiro=form_roteiro)
@@ -164,11 +206,12 @@ def editar_roteiro(id_roteiro):
 
 @app.route('/roteiro/<int:id_roteiro>/delete')
 @login_required
+@autenticacao_catequista
 def apagar_roteiro(id_roteiro):
-    roteiro = Roteiro.query.filter_by(id=id_roteiro, id_catequista=current_user.id).first()
-    delete_roteiro(roteiro)
+    roteiro = RoteiroDAO.query_roteiro_catequista(id_roteiro, current_user.id, True)
+    RoteiroDAO.delete(roteiro)
 
-    if not Roteiro.query.filter_by(id=id_roteiro, id_catequista=current_user.id).first():
+    if not RoteiroDAO.query_roteiro_catequista(id_roteiro, current_user.id):
         flash('Roteiro apagado', 'sucesso')
         return redirect(url_for('roteiros'))
 
@@ -183,22 +226,25 @@ def apagar_roteiro(id_roteiro):
 @app.route('/turma/all')
 @app.route('/turma/')
 @login_required
+@autenticacao_catequista
 def turmas():
-    dict_turmas = Turma.query.filter_by(id_comunidade=current_user.id_comunidade).all()
+    dict_turmas = TurmaDAO.query_turmas(current_user.id_comunidade)
     return render_template('templates_catequista/list_turmas.html', dict_turmas=dict_turmas)
 
 
 @app.route('/turma/add', methods=['get', 'post'])
 @login_required
+@autenticacao_catequista
 def adicionar_turma():
     form = TurmaForm(request.form)
-    form.tipo.choices = [(current_user.tipo_catequese_1, current_user.tipo_catequese_1), (current_user.tipo_catequese_2, current_user.tipo_catequese_2)]
+    tipos_catequeses = TipoCatequeseDAO.query_tipos_catequeses_catequista(current_user.id)
+    form.tipo.choices = [(row.id_tipo_catequese, TipoCatequeseDAO.query_tipo_catequese_id(row.id_tipo_catequese).nome) for row in tipos_catequeses]
 
     if request.method == 'POST' and form.validate_on_submit():
         turma = Turma(id_comunidade=current_user.id_comunidade,
                       nome=form.nome.data,
                       ano=form.ano.data,
-                      tipo=form.tipo.data)
+                      id_tipo_catequese=form.tipo.data)
         db.session.add(turma)
         db.session.commit()
         return redirect(url_for('turmas'))
@@ -212,9 +258,10 @@ def adicionar_turma():
 
 @app.route('/turma/<int:id_turma>/edit', methods=['get', 'post'])
 @login_required
+@autenticacao_catequista
 def editar_turma(id_turma):
-    turma = Turma.query.filter_by(id=id_turma, id_comunidade=current_user.id_comunidade).first()
-    form = EditarTurmaForm(request.form)
+    turma = TurmaDAO.query_turma(id_turma, current_user.id_comunidade, True)
+    form = EditarTurmaForm(formdata=request.form, obj=turma)
     form.tipo.choices = [(current_user.tipo_catequese_1, current_user.tipo_catequese_1), (current_user.tipo_catequese_2, current_user.tipo_catequese_2)]
 
     if form.validate_on_submit() and request.method == 'POST':
@@ -231,19 +278,16 @@ def editar_turma(id_turma):
         flash('Roteiro não encontrado', 'erro')
         abort(404)
 
-    form.nome.data = turma.nome
-    form.ano.data = turma.ano
-    form.tipo.data = turma.tipo
-
     return render_template('templates_catequista/editar_turma.html', turm=turma, form=form)
 
 
 @app.route('/turma/<int:id_turma>/view')
 @app.route('/turma/<int:id_turma>/')
 @login_required
+@autenticacao_catequista
 def visualizar_turma(id_turma):
-    turma = Turma.query.filter_by(id=id_turma, id_comunidade=current_user.id_comunidade).first()
-    catequizandos = FichaCatequizando.query.filter_by(id_turma=id_turma).order_by('nome').all()
+    turma = TurmaDAO.query_turma(id_turma, current_user.id_comunidade, True)
+    catequizandos = CatequizandoDAO.query_order_fichas_catequizandos(id_turma)
     return render_template('templates_catequista/view_turma.html', turma=turma, catequizandos=catequizandos)
 
 
@@ -256,8 +300,9 @@ def visualizar_turma(id_turma):
 
 @app.route('/turma/<int:id_turma>/ficha_catequizando/add', methods=['get', 'post'])
 @login_required
+@autenticacao_catequista
 def adicionar_ficha_catequizando(id_turma):
-    turma = Turma.query.filter_by(id=id_turma).first()
+    turma = TurmaDAO.query_turma(id_turma, current_user.id_comunidade, True)
     form = FichaCatequizandoForm(request.form)
 
     if request.method == 'POST' and form.validate_on_submit():
@@ -295,16 +340,18 @@ def adicionar_ficha_catequizando(id_turma):
 
 @app.route('/turma/<int:id_turma>/ficha_catequizando/<int:id_ficha_catequizando>/edit', methods=['get', 'post'])
 @login_required
+@autenticacao_catequista
 def editar_ficha_catequizando(id_turma, id_ficha_catequizando):
-    ficha_catequizando = FichaCatequizando.query.filter_by(id=id_ficha_catequizando, id_comunidade=current_user.id_comunidade, id_turma=id_turma).first()
-    form = EditarFichaCatequizandoForm(request.form)
+    ficha_catequizando = CatequizandoDAO.query_ficha_catequizando_comunidade(id_ficha_catequizando, current_user.id_comunidade, id_turma, True)
+    form = EditarFichaCatequizandoForm(formdata=request.form, obj=ficha_catequizando)
 
     if form.validate_on_submit() and request.method == 'POST':
-        ficha_catequizando.nome = form.nome_completo.data
+        ficha_catequizando.nome = form.nome.data
         ficha_catequizando.data_nasc = form.data_nasc.data
         ficha_catequizando.nome_mae = form.nome_mae.data
         ficha_catequizando.nome_pai = form.nome_pai.data
         ficha_catequizando.batizado = form.batizado.data
+        ficha_catequizando.eucaristia = form.eucaristia.data
         ficha_catequizando.escolaridade = form.escolaridade.data
         ficha_catequizando.logradouro = form.logradouro.data
         ficha_catequizando.bairro = form.bairro.data
@@ -325,38 +372,24 @@ def editar_ficha_catequizando(id_turma, id_ficha_catequizando):
         flash('Roteiro não encontrado', 'erro')
         abort(404)
 
-    form.nome_completo.data = ficha_catequizando.nome
-    form.data_nasc.data = ficha_catequizando.data_nasc
-    form.nome_mae.data = ficha_catequizando.nome_mae
-    form.nome_pai.data = ficha_catequizando.nome_pai
-    form.batizado.data = ficha_catequizando.batizado
-    form.escolaridade.data = ficha_catequizando.escolaridade
-    form.logradouro.data = ficha_catequizando.logradouro
-    form.bairro.data = ficha_catequizando.bairro
-    form.cidade.data = ficha_catequizando.cidade
-    form.estado.data = ficha_catequizando.estado
-    form.numero_casa.data = ficha_catequizando.numero_casa
-    form.ponto_referencia.data = ficha_catequizando.ponto_referencia
-    form.telefone.data = ficha_catequizando.telefone
-    form.whatsapp.data = ficha_catequizando.whatsapp
-
     return render_template('templates_catequista/editar_ficha_catequizando.html', roteiro=ficha_catequizando, form=form)
 
 
 @app.route('/turma/<int:id_turma>/ficha_catequizando/<int:id_ficha_catequizando>/view')
 @app.route('/turma/<int:id_turma>/ficha_catequizando/<int:id_ficha_catequizando>/')
 @login_required
+@autenticacao_catequista
 def visualizar_ficha_catequizando(id_turma, id_ficha_catequizando):
-    turma = Turma.query.filter_by(id=id_turma, id_comunidade=current_user.id_comunidade).first()
-    catequizando = FichaCatequizando.query.filter_by(id=id_ficha_catequizando, id_turma=turma.id).first()
+    turma = TurmaDAO.query_turma(id_turma, current_user.id_comunidade, True)
+    catequizando = CatequizandoDAO.query_fichas_catequizandos(id_ficha_catequizando, turma.id)
     return render_template('templates_catequista/ficha_catequizando.html', turma=turma, catequizando=catequizando)
 
 
 @app.route('/turma/<int:id_turma>/ficha_catequizando/<int:id_ficha_catequizando>/delete')
 @login_required
 def apagar_ficha_catequizando(id_turma, id_ficha_catequizando):
-    turma = Turma.query.filter_by(id=id_turma).first()
-    catequizando = FichaCatequizando.query.filter_by(id=id_ficha_catequizando, id_turma=id_turma, id_comunidade=current_user.id_comunidade).first()
+    turma = TurmaDAO.query_turma(id_turma, current_user.id_comunidade, True)
+    catequizando = CatequizandoDAO.query_ficha_catequizando_turma(id_ficha_catequizando, id_turma, True)
 
     if catequizando and current_user.coordenacao:
         db.session.delete(catequizando)
@@ -364,7 +397,6 @@ def apagar_ficha_catequizando(id_turma, id_ficha_catequizando):
         db.session.commit()
         flash('Ficha apagada', 'sucesso')
         return redirect(url_for('visualizar_turma', id_turma=id_turma))
-
 
 
 '''
@@ -377,14 +409,16 @@ def apagar_ficha_catequizando(id_turma, id_ficha_catequizando):
 @app.route('/turma/<int:id_turma>/encontro/all')
 @app.route('/turma/<int:id_turma>/encontro/')
 @login_required
+@autenticacao_catequista
 def encontros(id_turma):
-    turma = Turma.query.filter_by(id=id_turma, id_comunidade=current_user.id_comunidade).first()
-    dict_encontros = Encontro.query.filter_by(id=id_turma, id_comunidade=current_user.id_comunidade).all()
+    turma = TurmaDAO.query_turma(id_turma, current_user.id_comunidade, True)
+    dict_encontros = EncontroDAO.query_encontros(current_user.id_comunidade, id_turma, True)
     return render_template('templates_catequista/list_encontros.html', turma=turma, dict_encontros=dict_encontros)
 
 
 @app.route('/turma/<int:id_turma>/encontro/add', methods=['get', 'post'])
 @login_required
+@autenticacao_catequista
 def adicionar_encontro(id_turma):
     form = EncontroForm(request.form)
 
@@ -414,9 +448,10 @@ def adicionar_encontro(id_turma):
 
 @app.route('/turma/<int:id_turma>/encontro/<int:id_encontro>/edit', methods=['get', 'post'])
 @login_required
+@autenticacao_catequista
 def editar_encontro(id_turma, id_encontro):
-    encontro = Encontro.query.filter_by(id=id_encontro, id_comunidade=current_user.id_comunidade, id_turma=id_turma).first()
-    form = EditarEncontroForm(request.form)
+    encontro = EncontroDAO.query_encontro(id_encontro, current_user.id_comunidade, id_turma, True)
+    form = EditarEncontroForm(formdata=request.form, obj=encontro)
 
     if form.validate_on_submit() and request.method == 'POST':
         encontro.tema = form.tema.data
@@ -437,47 +472,14 @@ def editar_encontro(id_turma, id_encontro):
         flash('Encontro não encontrado', 'erro')
         abort(404)
 
-    form.tema.data = encontro.tema
-    form.data.data = encontro.data
-    form.numero.data = encontro.numero
-    form.leitura.data = encontro.leitura
-    form.atividade.data = encontro.atividade
-    form.compromisso.data = encontro.compromisso
-    form.avisos.data = encontro.avisos
-
     return render_template('templates_catequista/editar_encontro.html', encontro=encontro, form=form)
 
 
 @app.route('/turma/<int:id_turma>/encontro/<int:id_encontro>/view')
 @app.route('/turma/<int:id_turma>/encontro/<int:id_encontro>/')
 @login_required
+@autenticacao_catequista
 def visualizar_encontro(id_turma, id_encontro):
-    turma = Turma.query.filter_by(id=id_turma, id_comunidade=current_user.id_comunidade).first()
-    encontro = Encontro.query.filter_by(id=id_encontro, id_turma=id_turma).first()
+    turma = TurmaDAO.query_turma(id_turma, current_user.id_comunidade, True)
+    encontro = EncontroDAO.query_encontro_turma(id_encontro, current_user.id_comunidade, id_turma, True)
     return render_template('templates_catequista/view_encontro.html', turma=turma, encontro=encontro)
-
-
-'''
-@app.route('/turma/<int:id_turma>/encontro/<int:id_encontro>/frequencia/add', methods=['get', 'post'])
-@login_required
-def adicionar_frequencia(id_turma, id_encontro):
-    form = FrequenciaForm(request.form)
-    turma = Turma.query.filter_by(id=id_turma, id_comunidade=current_user.id_comunidade).first()
-    catequizandos = FichaCatequizando.query.filter_by(id_turma=id_turma).all()
-    encontro = Encontro.query.filter_by(id=id_encontro, id_turma=id_turma).first()
-    if request.method == 'POST' and form.validate_on_submit():
-        for catequizando in catequizandos:
-            name_presenca = 'presenca' + str(catequizando.id)
-            if form.presenca.name == name_presenca:
-                # frequencia = Frequencia(id_encontro=id_encontro, id_catequizando=catequizando.id, presenca=)
-                flash(form.presenca.name, 'info')
-    return render_template('templates_catequista/adicionar_frequencia.html', turma=turma, encontro=encontro, catequizandos=catequizandos, form=form)
-'''
-
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    flash('Você foi deslogado')
-    return redirect(url_for('index'))

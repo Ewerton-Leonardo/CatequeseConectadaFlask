@@ -1,57 +1,58 @@
-{% extends 'base_pg_inicial.html' %}
-{% block title %}Editar roteiro{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Adicionar roteiro{% endblock %}
 {% block content %}
-    <div class="container jumbotron">
-        {% from 'macro.html' import render_field, render_radiobox %}
+    <div class="container jumbotron col-lg-6 col-md-8 col-sm-12">
         <form method="post" class="form-text">
-            <h3 class="title-form">Ficha do catequista</h3>
-            {{ form_roteiro.csrf_token }}
+            {% from 'macro.html' import render_field, render_title_form %}
+            {{ render_title_form(form.title_form) }}
             <div class="form-group">
-                {{ render_field(form_roteiro.tipo) }}
+                {{ render_field(form.tipo) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.tema) }}
+                {{ render_field(form.tema) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.ambiente) }}
+                {{ render_field(form.ambiente) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.acolhida) }}
+                {{ render_field(form.acolhida) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.oracao_inicial) }}
+                {{ render_field(form.oracao_inicial) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.dinamica) }}
+                {{ render_field(form.dinamica) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.motivacao) }}
+                {{ render_field(form.motivacao) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.leituras) }}
+                {{ render_field(form.desenvolvimento) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.desenvolvimento) }}
+                {{ render_field(form.leituras) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.atividade) }}
+                {{ render_field(form.atividade) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.compromisso) }}
+                {{ render_field(form.compromisso) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.avisos) }}
+                {{ render_field(form.avisos) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.oracao_final) }}
+                {{ render_field(form.oracao_final) }}
             </div>
             <div class="form-group">
-                {{ render_field(form_roteiro.observacoes) }}
+                {{ render_field(form.observacoes) }}
             </div>
             <div class="form-group">
-                {{ render_radiobox(form_roteiro.publico) }}
+                {{ render_field(form.publico) }}
             </div>
-            <input class="btn btn-primary" type="submit" title="Adicionar" value="Adicionar roteiro">
+            <div class="form-group text-center">
+                {{ render_field(form.submit) }}
+            </div>
         </form>
     </div>
 {% endblock %}

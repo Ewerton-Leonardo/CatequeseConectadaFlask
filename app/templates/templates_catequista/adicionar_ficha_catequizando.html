@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}{{ form.title_form }}{% endblock %}
+{% block content %}
+    <div class="container jumbotron col-lg-6 col-md-8 col-sm-12">
+        <form method="post" class="form-text">
+            {% from 'macro.html' import render_field, render_title_form %}
+            {{ render_title_form(form.title_form) }}
+            <div class="form-group">
+                {{ render_field(form.nome_completo) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.data_nasc) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.nome_mae) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.nome_pai) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.batizado) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.eucaristia) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.escolaridade) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.logradouro) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.numero_casa) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.bairro) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.cidade) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.estado) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.ponto_referencia) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.telefone) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.whatsapp) }}
+            </div>
+            <div class="form-group">
+                {{ render_field(form.data_inscricao) }}
+            </div>
+            <div class="form-group text-center">
+                {{ render_field(form.submit) }}
+            </div>
+        </form>
+    </div>
+{% endblock %}

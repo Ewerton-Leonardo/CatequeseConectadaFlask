@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="container jumbotron col-lg-6 col-md-8 col-sm-12">
+    <form action="" method="post" class="form-text">
+        {% from 'macro.html' import render_field, render_title_form %}
+        {{ render_title_form(form.title_form) }}
+        {{ form.hidden_tag() }}
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+            {{ render_field(form.nome) }}
+        </div>
+        <div class="form-group text-center">
+            {{ render_field(form.submit) }}
+        </div>
+    </form>
+</section>
+
+{% if tipos_de_catequese_dict %}
+    <table class="table-striped container">
+        <thead>
+            <th>Tipos de catequese</th>
+        </thead>
+        <tbody>
+            {% for catequese in tipos_de_catequese_dict %}
+            <tr><td>{{ catequese.nome }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% endblock %}

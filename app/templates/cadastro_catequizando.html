@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Cadastro Catequizando{% endblock %}
+{% block content %}
+
+<div class="container jumbotron col-lg-6 col-md-8 col-sm-12">
+    <form action="" method="post">
+        {% from 'macro.html' import render_field, render_title_form %}
+
+        {% if codigo %}
+            {{ render_title_form(form_catequizando.title_form) }}
+            {{ form_catequizando.hidden_tag() }}
+            <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+                {{ render_field(form_catequizando.username) }}
+            </div>
+            <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+                {{ render_field(form_catequizando.senha) }}
+            </div>
+            <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+                {{ render_field(form_catequizando.confirma_senha) }}
+            </div>
+            <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+                {{ render_field(form_catequizando.nome) }}
+            </div>
+            <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+                {{ render_field(form_catequizando.data_nasc) }}
+            </div>
+            <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2 text-center">
+                {{ render_field(form_catequizando.submit) }}
+            </div>
+
+        {% else %}
+            {{ render_title_form(form_codigo.title_form) }}
+            {{ form_codigo.hidden_tag() }}
+            <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+                {{ form_codigo.codigo(class="form-control") }}
+            </div>
+            <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2 text-center">
+                {{ render_field(form_codigo.submit) }}
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+{% endblock %}

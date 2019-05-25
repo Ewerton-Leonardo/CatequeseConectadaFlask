@@ -1,23 +1,24 @@
-{% extends 'base_pg_inicial.html' %}
+{% extends 'base.html' %}
 {% block title %}
 Página Inicial
 {% endblock %}
 
 {% block content %}
-    <h1>Bem-vindo {{ user.nome }}!</h1>
+    {% from 'macro.html' import get_nome %}
+    <h1>Bem-vindo {{ get_nome(current_user.nome) }}!</h1>
     {% if not tem_ficha %}
         <a><section class="alert alert-info">
             <span>Você ainda não possui sua ficha de catequista.</span>
-            <a href="{{ url_for('ficha_catequista') }}"><button class="btn btn-primary">Preencha-a</button></a>
+            <a href="{{ url_for('adicionar_ficha_catequista') }}"><button class="btn btn-primary">Preencha-a</button></a>
         </section></a>
     {% endif %}
-    <a href="{{ url_for('roteiros') }}">
-        <section class="section-link container">
+    <a href="{{ url_for('roteiros') }}" class="btn btn-light">
+        <section class="section-link">
             <h3 class="title-section">Roteiros</h3>
         </section>
     </a>
-    <a href="{{ url_for('turmas') }}">
-        <section class="section-link container">
+    <a href="{{ url_for('turmas') }}" class="btn btn-light">
+        <section class="section-link">
             <h3 class="title-section">Turmas</h3>
         </section>
     </a>

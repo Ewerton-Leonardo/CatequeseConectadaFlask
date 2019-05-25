@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}
+Página Inicial
+{% endblock %}
+
+{% block content %}
+    {% from 'macro.html' import get_nome %}
+    <h1>Bem-vindo {{ get_nome(current_user.nome) }}!</h1>
+    <a href="{{ url_for('encontros_catequizando') }}" class="btn btn-light">
+        <section class="section-link">
+            <h3 class="title-section">Encontros</h3>
+        </section>
+    </a>
+    <a href="{{ url_for('turma_catequizando') }}" class="btn btn-light">
+        <section class="section-link">
+            <h3 class="title-section">Minha Turma</h3>
+        </section>
+    </a>
+{% endblock %}

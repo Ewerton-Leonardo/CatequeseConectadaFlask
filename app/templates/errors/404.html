@@ -1,0 +1,12 @@
+{% extends 'errors/base_errors.html' %}
+{% block title %}Não encontrado(a){% endblock %}
+{% block content %}
+<section class="error-http">
+    <p>Página não encontrada</p>
+    {% if current_user.active %}
+        <a class="btn btn-lg btn-primary" href="{{ url_for('index') }}">Página Inicial</a>
+    {% else %}
+        <a class="btn btn-lg btn-primary" href="{{ url_for('index') }}">Início</a>
+    {% endif %}
+</section>
+{% endblock %}

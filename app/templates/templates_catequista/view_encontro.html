@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}{{ encontro.tema }}{% endblock %}
+{% block content %}
+    <section>
+        <div>Nº {{ encontro.data }} encontro</div>
+        <div>Data do encontro: {{ encontro.data }}</div>
+        <div>Tipo: {{ turma.tipo }}</div>
+    </section>
+    <section>
+        {% if encontro.leitura %}
+            <p><strong>Tema: </strong>{{ encontro.tema }}</p>
+        {% endif %}
+        {% if encontro.leitura %}
+            <p><strong>Leitura: {{ encontro.leitura }}</strong></p>
+        {% endif %}
+        {% if encontro.atividade %}
+            <p><strong>Atividade: {{ encontro.atividade }}</strong></p>
+        {% endif %}
+        {% if encontro.compromisso %}
+            <p><strong>Compromisso: {{ encontro.compromisso }}</strong></p>
+        {% endif %}
+        {% if encontro.avisos %}
+            <p><strong>Avisos: {{ encontro.avisos }}</strong></p>
+        {% endif %}
+    </section>
+{% endblock %}

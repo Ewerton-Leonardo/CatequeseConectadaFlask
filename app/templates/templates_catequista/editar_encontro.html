@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}{{ form.title_form }}{% endblock %}
+{% block content %}
+    <div class="container jumbotron col-lg-6 col-md-8 col-sm-12">
+        <form method="post" class="form-text">
+            {% from 'macro.html' import render_field, render_field_read, render_title_form %}
+            {{ render_field_read(form.tema) }}
+        </form>
+    </div>
+{% endblock %}

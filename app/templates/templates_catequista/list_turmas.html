@@ -2,23 +2,23 @@
 {% block content %}
     <a href="{{ url_for('adicionar_turma') }}" class="btn btn-outline-success btn-lg btn-block">Adicionar turma</a>
     {% if dict_turmas %}
-    <table class="table">
+    <table class="table-responsive">
         <thead>
-            <tr>
-                <td>Tema</td>
-                <td>Tipo</td>
-            </tr>
+            <th>Nome</th>
+                <th>Tipo</th>
+                <th>Qt. catequizandos</th>
+
         </thead>
         <tbody>
             {% for turma in dict_turmas %}
                 <tr>
-                    <td>{{ turma.tema }}</td>
+                    <td>{{ turma.nome }}</td>
                     <td>{{ turma.tipo }}</td>
-                    <td>{{ turma.publico }}</td>
-                    <td><a href="{{ url_for('visualizar_roteiro', id_turma=turma.id) }}"><button class="btn btn-light"><img src="{{ url_for('static', filename='png/eye-3x.png') }}" alt="Editar"></button></a></td>
+                    <td>{{ turma.qt_catequizandos }}</td>
+                    <td>{{ turma.codigo }}</td>
+                    <td><a href="{{ url_for('visualizar_turma', id_turma=turma.id) }}"><button class="btn btn-light"><img src="{{ url_for('static', filename='png/eye-3x.png') }}" alt="Editar"></button></a></td>
                     {% if turma.id_catequista == current_user.id %}
-                    <td><a href="{{ url_for('editar_roteiro', id_turma=turma.id) }}"><button class="btn btn-toolbar"><img src="{{ url_for('static', filename='png/pencil-3x.png') }}" alt="Editar"></button></a></td>
-                    <td><a href="{{ url_for('apagar_roteiro', id_turma=turma.id) }}"><button class="btn btn-danger"><img src="{{ url_for('static', filename='png/trash-3x.png') }}" alt="Apagar"></button></a></td>
+                    <td><a href="{{ url_for('editar_turma', id_turma=turma.id) }}"><button class="btn btn-toolbar"><img src="{{ url_for('static', filename='png/pencil-3x.png') }}" alt="Editar"></button></a></td>
                     {% endif %}
                 </tr>
             {% endfor %}

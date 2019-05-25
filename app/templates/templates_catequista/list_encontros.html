@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+    <a href="{{ url_for('adicionar_encontro', id_turma=turma.id) }}" class="btn btn-outline-success btn-lg btn-block">Adicionar encontro</a>
+    <h2>Turma: {{ turma.nome }}</h2>
+    {% if dict_encontros %}
+    <table class="table">
+        <thead>
+            <tr>
+                <td>Nº</td>
+                <td>Tema</td>
+                <td>Data</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for encontro in dict_encontros %}
+                <tr>
+                    <td>{{ encontro.numero }}</td>
+                    <td>{{ encontro.tema }}</td>
+                    <td>{{ encontro.data }}</td>
+                    <td><a href="{{ url_for('visualizar_encontro', id_turma=turma.id, id_encontro=encontro.id) }}" class="btn btn-light"><img src="{{ url_for('static', filename='png/eye-3x.png') }}" alt="Visualizar" title="Visualizar"></a></td>
+                    {% if encontro.id_comunidade == current_user.id_comunidade %}
+                    <td><a href="{{ url_for('editar_encontro', id_turma=turma.id, id_encontro=encontro.id) }}" class="btn btn-light"><img src="{{ url_for('static', filename='png/pencil-3x.png') }}" alt="Editar" title="Editar"></a></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <h1>Sem encontros</h1>
+    {% endif %}
+{% endblock %}

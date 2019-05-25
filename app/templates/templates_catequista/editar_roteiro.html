@@ -1,56 +1,11 @@
-{% extends 'base_pg_inicial.html' %}
+{% extends 'base.html' %}
 {% block title %}Editar roteiro{% endblock %}
 {% block content %}
     {% if roteiro != None %}
-    <div class="container jumbotron">
-        {% from 'macro.html' import render_field, render_radiobox %}
+    <div class="container jumbotron col-lg-6 col-md-8 col-sm-12">
         <form method="post" class="form-text">
-            <h3 class="title-form">Editar roteiro</h3>
-            {{ form_roteiro.csrf_token }}
-            <div class="form-group">
-                {{ render_field(form_roteiro.tema) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.ambiente) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.acolhida) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.oracao_inicial) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.dinamica) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.motivacao) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.leituras) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.desenvolvimento) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.atividade) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.compromisso) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.avisos) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.oracao_final) }}
-            </div>
-            <div class="form-group">
-                {{ render_field(form_roteiro.observacoes) }}
-            </div>
-            <div class="form-group">
-                {{ render_radiobox(form_roteiro.publico) }}
-            </div>
-            <input class="btn btn-primary" type="submit" title="Enviar" value="Editar roteiro">
-
+            {% from 'macro.html' import render_form %}
+            {{ render_form(form_roteiro) }}
         </form>
     </div>
     {% endif %}

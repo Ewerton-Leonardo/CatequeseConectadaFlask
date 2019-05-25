@@ -2,36 +2,80 @@
 {% block title %}Cadastro Catequista{% endblock %}
 {% block content %}
 
-<div class="container jumbotron">
-    <form action="" method="post" class="form-text">
-        {{ form_catequista.csrf_token }}
-            <div class="form-group">
-                {{ form_catequista.username(class="form-control", placeholder=form_catequista.username.label.text) }}
-            </div>
-            <div class="form-group">
-                {{ form_catequista.senha(class="form-control", placeholder=form_catequista.senha.label.text) }}
-            </div>
-            <div class="form-group">
-                {{ form_catequista.nome(class="form-control", placeholder=form_catequista.nome.label.text) }}
-            </div>
-            <div class="form-group">
-                {{ form_catequista.comunidade.label }}<br>
-                {{ form_catequista.comunidade(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ form_catequista.tipo1(class="form-control", placeholder="Qual catequese? Ex. Primeira Eucaristia, Crisma, etc.") }}
-            </div>
-            <div class="form-group">
-                {{ form_catequista.tipo2(class="form-control", placeholder="Tem outra? Se sim, qual?") }}
-            </div>
-            <div class="form-group">
-                {{ form_catequista.coordenacao.label }}<br>
-                {{ form_catequista.coordenacao(class="list-unstyled d-inline") }}
-            </div>
-
-            <input class="btn btn-primary" type="submit" title="Cadastrar-se" value="Cadastrar-se">
-
+<div class="container jumbotron col-lg-6 col-md-8 col-sm-12">
+    <form action="" method="post">
+        {{ form_catequista.hidden_tag() }}
+        {% from 'macro.html' import render_field, render_title_form %}
+        {{ render_title_form(form_catequista.title_form) }}
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+            {{ render_field(form_catequista.username) }}
+        </div>
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+            {{ render_field(form_catequista.senha) }}
+        </div>
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+            {{ render_field(form_catequista.confirma_senha) }}
+        </div>
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+            {{ render_field(form_catequista.nome) }}
+        </div>
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+            {{ render_field(form_catequista.data_nasc) }}
+        </div>
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+            {{ render_field(comunidade_form.diocese_select) }}
+        </div>
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+            {{ render_field(comunidade_form.paroquia_select) }}
+        </div>
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+            {{ render_field(form_catequista.comunidade) }}
+        </div>
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2 text-center">
+            {{ render_field(form_catequista.coordenacao) }}
+        </div>
+        <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2 text-center">
+            {{ render_field(form_catequista.submit) }}
+        </div>
     </form>
 </div>
+    <script>
+        var diocese_select = document.getElementById("diocese_select");
+        var paroquia_select = document.getElementById("paroquia_select");
+        var comunidade_select = document.getElementById("comunidade");
+
+
+
+
+        diocese_select.onchange = function()  {
+            diocese = diocese_select.value;
+
+            fetch('/paroquias/'+diocese).then(function(response) {
+                response.json().then(function(data) {
+                    var optionHTML = '';
+                    paroquia_select.innerHTML = '<option value="">Selecione a paróquia</option>';
+                    for (var paroquia of data.paroquias) {
+                            optionHTML += '<option value="' + paroquia + '">' + paroquia + '</option>';
+                        }
+                    paroquia_select.innerHTML += optionHTML;
+                })
+
+            });
+        };
+        paroquia_select.onchange = function() {
+            paroquia = paroquia_select.value;
+            fetch('/comunidades/'+paroquia+'/'+diocese).then(function(response) {
+                response.json().then(function(data) {
+                    var optionHTML = '';
+                    comunidade_select.innerHTML = '<option value="">Selecione a comunidade</option>';
+                    for (var comunidade of data.comunidades) {
+                            optionHTML += '<option value="' + comunidade.id_com + '">' + comunidade.nome + '</option>';
+                        }
+                    comunidade_select.innerHTML += optionHTML;
+                })
+
+            });
+        }
+    </script>
 
 {% endblock %}

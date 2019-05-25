@@ -1,54 +1,56 @@
-{% extends 'base_pg_inicial.html' %}
+{% extends 'base.html' %}
 {% block title %}Ficha do Catequista{% endblock %}
 {% block content %}
     {% if tem_ficha %}
         <p>Você já possui ficha</p>
     {% else %}
-        <div class="container jumbotron">
-            {% from 'macro.html' import render_field, render_radiobox %}
+        <div class="container jumbotron col-lg-6 col-md-8 col-sm-12">
             <form method="post" class="form-text">
-                <h3 class="title-form">Ficha do catequista</h3>
-                {{ form_ficha.csrf_token }}
-                <div class="form-group">
+                {% from 'macro.html' import render_field %}
+                <h3 class="title-form">{{ form_ficha.title_form }}</h3>
+                {{ form_ficha.hidden_tag() }}
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
                     {{ render_field(form_ficha.nome_completo) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-4 col-md-8 col-sm-12 offset-lg-4 offset-md-2">
                     {{ render_field(form_ficha.data_nasc) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-4 col-md-8 col-sm-12 offset-lg-4 offset-md-2">
                     {{ render_field(form_ficha.ano_entrada) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
                     {{ render_field(form_ficha.escolaridade) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
                     {{ render_field(form_ficha.telefone) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
                     {{ render_field(form_ficha.whatsapp) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
                     {{ render_field(form_ficha.logradouro) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
                     {{ render_field(form_ficha.bairro) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
                     {{ render_field(form_ficha.cidade) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
                     {{ render_field(form_ficha.estado) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-4 col-md-8 col-sm-12 offset-lg-4 offset-md-2">
                     {{ render_field(form_ficha.numero_casa) }}
                 </div>
-                <div class="form-group">
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
                     {{ render_field(form_ficha.ponto_referencia) }}
                 </div>
-                <div class="form-group">
-                    {{ render_radiobox(form_ficha.crismado) }}
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2">
+                    {{ render_field(form_ficha.crismado) }}
                 </div>
-                <input class="btn btn-primary" type="submit" title="Cadastrar-se" value="Cadastrar ficha">
+                <div class="form-group col-lg-6 col-md-8 col-sm-12 offset-lg-3 offset-md-2 text-center">
+                    {{ render_field(form_ficha.submit) }}
+                </div>
             </form>
         </div>
     {% endif %}

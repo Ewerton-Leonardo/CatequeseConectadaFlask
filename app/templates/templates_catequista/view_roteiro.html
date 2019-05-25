@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}{{ roteiro.tema }}{% endblock %}
+{% block content %}
+    <section>
+        <div>Autor: <strong>{{ autor.nome }}</strong></div><br>
+        <div>Data de postagem: {{ roteiro.data_now }}</div>
+        <div>Tipo: {{ roteiro.tipo }}</div>
+    </section>
+    <section>
+        <p><strong>Tema: </strong>{{ roteiro.tema }}</p>
+            {% if roteiro.ambiente %}
+            <p><strong>Ambiente: {{ roteiro.ambiente }}</strong></p>
+        {% endif %}
+            {% if roteiro.acolhida %}
+            <p><strong>Acolhida: {{ roteiro.acolhida }}</strong></p>
+        {% endif %}
+            {% if roteiro.oracao_inicial %}
+            <p><strong>Oração Inicial: {{ roteiro.oracao_inicial }}</strong></p>
+        {% endif %}
+            {% if roteiro.dinamica %}
+            <p><strong>Dinâmica: {{ roteiro.dinamica }}</strong></p>
+        {% endif %}
+            {% if roteiro.motivacao %}
+            <p><strong>Motivação: {{ roteiro.motivacao }}</strong></p>
+        {% endif %}
+            {% if roteiro.leituras %}
+            <p><strong>Leitura(s): {{ roteiro.leituras }}</strong></p>
+        {% endif %}
+            {% if roteiro.desenvolvimento %}
+            <p><strong>Desenvolvimento: {{ roteiro.desenvolvimento }}</strong></p>
+        {% endif %}
+            {% if roteiro.atividade %}
+            <p><strong>Atividade: {{ roteiro.atividade }}</strong></p>
+        {% endif %}
+            {% if roteiro.compromisso %}
+            <p><strong>Compromisso: {{ roteiro.compromisso }}</strong></p>
+        {% endif %}
+            {% if roteiro.avisos %}
+            <p><strong>Avisos: {{ roteiro.avisos }}</strong></p>
+        {% endif %}
+            {% if roteiro.oracao_final %}
+            <p><strong>Oração Final: {{ roteiro.oracao_final }}</strong></p>
+        {% endif %}
+            {% if roteiro.observacoes %}
+            <p><strong>Observações: {{ roteiro.observacoes }}</strong></p>
+            {% endif %}
+    </section>
+{% endblock %}

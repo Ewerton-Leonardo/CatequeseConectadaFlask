@@ -1,0 +1,24 @@
+{% extends 'base_pg_inicial.html' %}
+{% block title %}
+Página Inicial
+{% endblock %}
+
+{% block content %}
+    <h1>Bem-vindo {{ user.nome }}!</h1>
+    {% if not tem_ficha %}
+        <a><section class="alert alert-info">
+            <span>Você ainda não possui sua ficha de catequista.</span>
+            <a href="{{ url_for('ficha_catequista') }}"><button class="btn btn-primary">Preencha-a</button></a>
+        </section></a>
+    {% endif %}
+    <a href="{{ url_for('roteiros') }}">
+        <section class="section-link container">
+            <h3 class="title-section">Roteiros</h3>
+        </section>
+    </a>
+    <a href="{{ url_for('turmas') }}">
+        <section class="section-link container">
+            <h3 class="title-section">Turmas</h3>
+        </section>
+    </a>
+{% endblock %}

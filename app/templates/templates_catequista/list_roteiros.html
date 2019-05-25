@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+    <a href="{{ url_for('adicionar_roteiro') }}" class="btn btn-outline-success btn-lg btn-block">Adicionar roteiro</a>
+    {% if roteiros1 %}
+    <table class="table">
+        <thead>
+            <tr>
+                <td>Tema</td>
+                <td>Tipo</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for roteiro in roteiros1 %}
+                <tr>
+                    <td>{{ roteiro.tema }}</td>
+                    <td>{{ roteiro.tipo }}</td>
+                    <td>{{ roteiro.publico }}</td>
+                    <td><a href="{{ url_for('visualizar_roteiro', id_roteiro=roteiro.id) }}"><button class="btn btn-light"><img src="{{ url_for('static', filename='png/eye-3x.png') }}" alt="Editar"></button></a></td>
+                    {% if roteiro.id_catequista == current_user.id %}
+                    <td><a href="{{ url_for('editar_roteiro', id_roteiro=roteiro.id) }}"><button class="btn btn-light"><img src="{{ url_for('static', filename='png/pencil-3x.png') }}" alt="Editar"></button></a></td>
+                    <td><a href="{{ url_for('apagar_roteiro', id_roteiro=roteiro.id) }}"><button class="btn btn-danger"><img src="{{ url_for('static', filename='png/trash-3x.png') }}" alt="Apagar"></button></a></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+
+
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}{{ turma.nome }}{% endblock %}
+{% block content %}
+    <h2>Turma {{ turma.nome }}</h2>
+    {% if catequisandos %}
+        {% for catequisando in catequisandos %}
+            <div class="box-pessoa" style="position: absolute;left: 0px;top: 0px;">
+                <h4>{{ catequisando.nome }}</h4>
+                <dl>
+                    <dt>Data de nascimento:</dt>
+                    <dd>{{ catequisando.data_nasc }}</dd>
+
+                    <dt class="hidden">Email:</dt>
+                    <dd>alinedcts@gmail.com</dd>
+
+                </dl>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
